@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1220">
+<title>ZAHEER TRADING | Forex Practice</title>
+<style>
+:root{--bg:#0b1220;--panel:#111c2e;--panel2:#16243a;--line:#26364e;--text:#edf3fb;--muted:#91a2b9;--green:#27d69b;--red:#ff657a;--blue:#68a7ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,Arial,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px max(18px,calc((100% - 1200px)/2));border-bottom:1px solid var(--line);background:#0d1728;position:sticky;top:0;z-index:5}
+.brand{font-weight:850;letter-spacing:1.5px}.brand span{color:var(--green)}.tag{font-size:11px;color:var(--green);border:1px solid #1d725c;border-radius:20px;padding:4px 9px;margin-left:8px}
+.wrap{max-width:1200px;margin:auto;padding:24px 18px 50px}.notice{background:#2b2413;border:1px solid #665322;color:#f5d98b;padding:12px 14px;border-radius:12px;font-size:13px;margin-bottom:18px}
+h1{font-size:27px;margin:0 0 5px} .sub{color:var(--muted);margin:0 0 22px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px;min-width:0}.stat-label{color:var(--muted);font-size:12px}.stat-value{font-size:24px;font-weight:750;margin-top:5px}.green{color:var(--green)}.red{color:var(--red)}
+.layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);gap:16px}.section-title{font-size:16px;font-weight:750;margin:0 0 14px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+select,input,button{font:inherit}select,input{background:#0c1626;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px;width:100%;outline:none}button{border:0;border-radius:9px;padding:11px 14px;font-weight:750;cursor:pointer}.buy{background:var(--green);color:#052319}.sell{background:var(--red);color:#2b0710}.secondary{background:#22334c;color:var(--text)}button:disabled{opacity:.45;cursor:not-allowed}
+.chartbox{height:260px;background:#0c1626;border:1px solid var(--line);border-radius:12px;padding:8px;overflow:hidden}.chartbox canvas{width:100%;height:100%}
+.pairrow{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);gap:10px}.pairrow:last-child{border:0}.pairname{font-weight:700}.pairmeta{font-size:12px;color:var(--muted)}.price{text-align:right;font-weight:700}.change{font-size:12px}
+.tradeform{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}.field.full{grid-column:1/-1}.actions{display:flex;gap:8px}.actions button{flex:1}
+.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:13px}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}
+.bottom{margin-top:16px}.empty{text-align:center;color:var(--muted);padding:22px}.foot{color:var(--muted);font-size:12px;margin-top:20px;text-align:center}
+@media(max-width:820px){.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.wrap{padding-top:18px}.stat-value{font-size:21px}}
+@media(max-width:420px){header{padding:14px}.tag{display:block;width:max-content;margin:5px 0 0}.tradeform{grid-template-columns:1fr}.field.full{grid-column:auto}h1{font-size:23px}}
+</style>
+</head>
+<body>
+<header><div><div class="brand">ZAHEER <span>TRADING</span></div><span class="tag">FOREX PRACTICE SIMULATOR</span></div><button class="secondary" id="resetBtn">Reset demo</button></header>
+<main class="wrap">
+<div class="notice"><b>Educational demo only.</b> Prices are simulated, funds are virtual, and no real trades or broker connections are possible. This is not financial advice.</div>
+<h1>Practice your trading skills</h1><p class="sub">Learn how currency pairs, positions, and profit/loss work — without risking real money.</p>
+<section class="stats">
+<div class="card"><div class="stat-label">VIRTUAL BALANCE</div><div class="stat-value" id="balance">$10,000.00</div></div>
+<div class="card"><div class="stat-label">EQUITY</div><div class="stat-value" id="equity">$10,000.00</div></div>
+<div class="card"><div class="stat-label">OPEN P/L</div><div class="stat-value" id="openPL">$0.00</div></div>
+<div class="card"><div class="stat-label">CLOSED P/L</div><div class="stat-value" id="closedPL">$0.00</div></div>
+</section>
+<div class="layout">
+<div>
+<section class="card">
+<div class="toolbar"><h2 class="section-title">Market overview</h2><span class="pairmeta">Illustrative demo quotes</span></div>
+<div id="markets"></div>
+</section>
+<section class="card bottom">
+<div class="toolbar"><h2 class="section-title">Price movement</h2><select id="chartPair" style="max-width:145px"></select></div>
+<div class="chartbox"><canvas id="chart" width="900" height="300" aria-label="Simulated currency price chart"></canvas></div>
+<div class="pairmeta" style="margin-top:8px">The chart moves locally in your browser and does not represent live market data.</div>
+</section>
+<section class="card bottom">
+<h2 class="section-title">Your open positions</h2><div class="table-wrap"><table><thead><tr><th>Pair</th><th>Side</th><th>Units</th><th>Entry</th><th>Current</th><th>Unrealized P/L</th><th></th></tr></thead><tbody id="positions"></tbody></table></div>
+</section>
+</div>
+<aside>
+<section class="card">
+<h2 class="section-title">Practice trade</h2>
+<div class="tradeform">
+<div class="field full"><label for="pair">Currency pair</label><select id="pair"></select></div>
+<div class="field"><label for="side">Direction</label><select id="side"><option value="buy">Buy / Long</option><option value="sell">Sell / Short</option></select></div>
+<div class="field"><label for="units">Units</label><input id="units" type="number" min="1" max="100000" step="100" value="1000"></div>
+<div class="field full"><div class="pairmeta" id="tradeQuote">Demo quote: —</div></div>
+<div class="field full actions"><button class="buy" id="openBtn">Open practice trade</button></div>
+<div class="field full"><div id="message" class="pairmeta" role="status">Choose a pair and units to practise.</div></div>
+</div>
+</section>
+<section class="card bottom">
+<h2 class="section-title">How it works</h2>
+<p class="pairmeta">1. Select a currency pair.<br>2. Choose Buy if you think its price may rise, or Sell if you think it may fall.<br>3. Open a virtual position.<br>4. Watch simulated profit/loss change and close the position when ready.</p>
+<p class="pairmeta">This simplified simulator excludes leverage, spreads, swaps, commissions, and real execution.</p>
+</section>
+</aside>
+</div>
+<section class="card bottom">
+<h2 class="section-title">Practice history</h2><div class="table-wrap"><table><thead><tr><th>Pair</th><th>Side</th><th>Units</th><th>Entry</th><th>Exit</th><th>Result</th></tr></thead><tbody id="history"></tbody></table></div>
+</section>
+<p class="foot">ZAHEER TRADING · Personal educational simulator · Virtual funds only</p>
+</main>
+<script>
+(()=>{
+const START=10000, STORE='zaheerForexDemoV1';
+const initial={
+ balance:START,closedPL:0,positions:[],history:[],
+ markets:{'EUR/USD':1.08420,'GBP/USD':1.27150,'USD/JPY':149.250,'USD/CHF':0.88210,'AUD/USD':0.65420,'USD/CAD':1.36120}
+};
+let state;
+try{state=JSON.parse(localStorage.getItem(STORE))||structuredClone(initial)}catch{state=structuredClone(initial)}
+let prices={...initial.markets},series={};
+Object.keys(prices).forEach(k=>series[k]=Array.from({length:45},(_,i)=>prices[k]*(1+Math.sin(i/4)*.0012)));
+const fmt=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const digits=p=>p.includes('JPY')?3:5;
+const priceFmt=(p,n)=>Number(n).toFixed(digits(p));
+const save=()=>localStorage.setItem(STORE,JSON.stringify(state));
+const plFor=pos=>(prices[pos.pair]-pos.entry)*pos.units*(pos.side==='buy'?1:-1);
+function render(){
+ const open=state.positions.reduce((s,p)=>s+plFor(p),0);
+ document.getElementById('balance').textContent=fmt(state.balance);
+ document.getElementById('equity').textContent=fmt(state.balance+open);
+ setPL('openPL',open);setPL('closedPL',state.closedPL);
+ document.getElementById('markets').innerHTML=Object.entries(prices).map(([p,v])=>{
+ const base=initial.markets[p],chg=(v/base-1)*100;
+ return `<div class="pairrow"><div><div class="pairname">${p}</div><div class="pairmeta">Simulated quote</div></div><div class="price">${priceFmt(p,v)}<div class="change ${chg>=0?'green':'red'}">${chg>=0?'+':''}${chg.toFixed(2)}%</div></div></div>`}).join('');
+ document.getElementById('positions').innerHTML=state.positions.length?state.positions.map(p=>{
+ const pl=plFor(p);return `<tr><td>${p.pair}</td><td>${p.side.toUpperCase()}</td><td>${p.units.toLocaleString()}</td><td>${priceFmt(p.pair,p.entry)}</td><td>${priceFmt(p.pair,prices[p.pair])}</td><td class="${pl>=0?'green':'red'}">${fmt(pl)}</td><td><button class="secondary" data-close="${p.id}">Close</button></td></tr>`}).join(''):'<tr><td colspan="7" class="empty">No open positions yet.</td></tr>';
+ document.getElementById('history').innerHTML=state.history.length?state.history.slice().reverse().map(p=>`<tr><td>${p.pair}</td><td>${p.side.toUpperCase()}</td><td>${p.units.toLocaleString()}</td><td>${priceFmt(p.pair,p.entry)}</td><td>${priceFmt(p.pair,p.exit)}</td><td class="${p.result>=0?'green':'red'}">${fmt(p.result)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Your closed practice trades will appear here.</td></tr>';
+ document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closePosition(b.dataset.close)));
+ updateQuote();drawChart();save();
+}
+function setPL(id,n){const el=document.getElementById(id);el.textContent=fmt(n);el.className='stat-value '+(n>0?'green':n<0?'red':'')}
+function updateQuote(){const p=document.getElementById('pair').value;document.getElementById('tradeQuote').textContent=p?`Current simulated quote: ${priceFmt(p,prices[p])}`:'Demo quote: —'}
+function populate(){
+ for(const id of ['pair','chartPair'])document.getElementById(id).innerHTML=Object.keys(prices).map(p=>`<option>${p}</option>`).join('');
+ document.getElementById('pair').addEventListener('change',updateQuote);
+ document.getElementById('chartPair').addEventListener('change',drawChart);
+}
+function drawChart(){
+ const c=document.getElementById('chart'),ctx=c.getContext('2d'),p=document.getElementById('chartPair').value,arr=series[p]||[];
+ const w=c.width,h=c.height,pad=30,min=Math.min(...arr),max=Math.max(...arr),range=max-min||1;
+ ctx.clearRect(0,0,w,h);ctx.strokeStyle='#26364e';ctx.lineWidth=1;
+ for(let i=0;i<5;i++){let y=pad+i*(h-2*pad)/4;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke()}
+ ctx.beginPath();arr.forEach((v,i)=>{const x=pad+i*(w-2*pad)/(arr.length-1),y=h-pad-(v-min)/range*(h-2*pad);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
+ ctx.strokeStyle='#27d69b';ctx.lineWidth=3;ctx.stroke();
+ ctx.fillStyle='#91a2b9';ctx.font='14px Arial';ctx.fillText(priceFmt(p,max),pad,18);ctx.fillText(priceFmt(p,min),pad,h-5);
+}
+function closePosition(id){
+ const i=state.positions.findIndex(p=>p.id===id);if(i<0)return;
+ const p=state.positions.splice(i,1)[0],result=plFor(p);
+ state.balance+=result;state.closedPL+=result;state.history.push({...p,exit:prices[p.pair],result});
+ msg(`Position closed. Practice result: ${fmt(result)}.`);render();
+}
+function msg(t,bad=false){const el=document.getElementById('message');el.textContent=t;el.style.color=bad?'#ff8795':'#91a2b9'}
+document.getElementById('openBtn').addEventListener('click',()=>{
+ const pair=document.getElementById('pair').value,side=document.getElementById('side').value,units=Number(document.getElementById('units').value);
+ if(!Number.isInteger(units)||units<1||units>100000){msg('Enter a whole number of units between 1 and 100,000.',true);return}
+ state.positions.push({id:String(Date.now())+Math.random().toString(16).slice(2),pair,side,units,entry:prices[pair]});
+ msg(`${side.toUpperCase()} practice position opened for ${units.toLocaleString()} units of ${pair}.`);render();
+});
+document.getElementById('resetBtn').addEventListener('click',()=>{
+ if(!confirm('Reset your demo balance, open positions, and history?'))return;
+ state=structuredClone(initial);prices={...initial.markets};Object.keys(series).forEach(k=>series[k]=Array.from({length:45},(_,i)=>prices[k]*(1+Math.sin(i/4)*.0012)));
+ msg('Demo account reset.');render();
+});
+populate();render();
+setInterval(()=>{
+ Object.keys(prices).forEach(p=>{
+ const move=(Math.random()-.5)*(p.includes('JPY')?.0009:.000012);
+ prices[p]=Math.max(.0001,prices[p]+move);
+ series[p].push(prices[p]);if(series[p].length>70)series[p].shift();
+ });
+ render();
+},2500);
+})();
+</script>
+</body>
+</html>
