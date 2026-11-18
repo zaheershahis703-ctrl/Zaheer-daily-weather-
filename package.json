@@ -1,0 +1,16 @@
+{
+  "name": "zaheer-daily-weather-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Daily Sheikhupura weather API and scheduled WhatsApp report",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "send": "node send-daily.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

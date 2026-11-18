@@ -1,0 +1,50 @@
+services:
+  - type: web
+    name: zaheer-daily-weather-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: WEATHER_LAT
+        value: "31.7131"
+      - key: WEATHER_LON
+        value: "73.9783"
+      - key: WEATHER_LOCATION
+        value: "Sheikhupura, Pakistan"
+      - key: TIMEZONE
+        value: "Asia/Karachi"
+
+  - type: cron
+    name: zaheer-daily-whatsapp-weather
+    runtime: node
+    plan: starter
+    schedule: "0 2 * * *"
+    buildCommand: npm install
+    startCommand: npm run send
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: WEATHER_LAT
+        value: "31.7131"
+      - key: WEATHER_LON
+        value: "73.9783"
+      - key: WEATHER_LOCATION
+        value: "Sheikhupura, Pakistan"
+      - key: TIMEZONE
+        value: "Asia/Karachi"
+      - key: WA_ACCESS_TOKEN
+        sync: false
+      - key: WA_PHONE_NUMBER_ID
+        sync: false
+      - key: WA_RECIPIENT
+        sync: false
+      - key: GRAPH_API_VERSION
+        sync: false
+      - key: WA_TEMPLATE_NAME
+        value: "daily_weather_report"
+      - key: WA_TEMPLATE_LANGUAGE
+        value: "en"
